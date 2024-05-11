@@ -10,6 +10,7 @@ using System.Diagnostics;
 using System.Drawing;
 using System.IO;
 using System.Linq;
+using System.Media;
 using System.Text;
 using System.Threading.Tasks;
 using System.Windows.Forms;
@@ -127,35 +128,6 @@ namespace dingledingle_easyfileopener
             if (comboBox1.Items.Count > 0)
             {
                 Process.Start("explorer.exe", folders[comboBox1.SelectedIndex].Path);
-            }
-        }
-
-        //------------------------------------------------------
-        // Purpose: Code for the "Add" button.
-        //------------------------------------------------------
-        private void button2_Click(object sender, EventArgs e)
-        {
-            FolderBrowserDialog folderBrowserDialog = new FolderBrowserDialog();
-            folderBrowserDialog.ShowDialog();
-            if (folderBrowserDialog.SelectedPath != string.Empty)
-            {
-                if (FolderAlreadyExists(folderBrowserDialog.SelectedPath) == true)
-                {
-                    MessageBox.Show("The folder you selected is already in the list.\n\nFolder addition cancelled", "Duplicate Folder", MessageBoxButtons.OK, MessageBoxIcon.Error);
-                    return;
-                }
-
-                folders.Add(new folderName() { Path = folderBrowserDialog.SelectedPath, Name = new DirectoryInfo(folderBrowserDialog.SelectedPath).Name });
-                comboBox1.Items.Clear();
-                foreach (folderName item in folders)
-                {
-                    comboBox1.Items.Add(item.Name);
-                }
-                comboBox1.SelectedIndex = folders.Count - 1;
-            }
-            if (folders.Count != 0)
-            {
-                button3.Enabled = true;
             }
         }
 
@@ -295,13 +267,17 @@ namespace dingledingle_easyfileopener
                 // Warn the user if they have dragged more than 1 item
                 if (files.Length > 1)
                 {
-                    MessageBox.Show("You dragged more then one item.  Only one directory will be added:" + "\n" + files[0].ToString(), "Warning");
+                    // Set focus back to the main window of the program
+                    this.Activate();
+                    MessageBox.Show("You dragged more than one item. Only one directory will be added:" + "\n" + files[0].ToString(), "Warning", MessageBoxButtons.OK, MessageBoxIcon.Exclamation);
                 }
 
                 string DirectoryPath = GetDirectoryFromPath(files[0].ToString());
 
-                if (FolderAlreadyExists(DirectoryPath) == true)
+                if (FolderAlreadyExists(DirectoryPath))
                 {
+                    // Set focus back to the main window of the program
+                    this.Activate();
                     MessageBox.Show("The folder you selected is already in the list.\n\nFolder Addition Cancelled", "Duplicate Folder", MessageBoxButtons.OK, MessageBoxIcon.Error);
                     return;
                 }
@@ -317,6 +293,8 @@ namespace dingledingle_easyfileopener
 
         private void label1_DragEnter(object sender, DragEventArgs e)
         {
+            // Set focus back to the main window of the program
+            this.Activate();
             Console.WriteLine(EventString("label1_DragEnter"));
             if (e.Data.GetDataPresent(DataFormats.FileDrop)) e.Effect = DragDropEffects.Copy;
         }
